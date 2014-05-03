@@ -60,6 +60,7 @@ CTMonitorDlg::CTMonitorDlg(CWnd* pParent /*=NULL*/)
 
 	TArray.RemoveAll();
 	memset(m_temp,0,sizeof(int)*POINT_COUNT);
+	state = FALSE;
 }
 
 void CTMonitorDlg::DoDataExchange(CDataExchange* pDX)
@@ -71,6 +72,7 @@ void CTMonitorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_NMB, m_num);
 	DDX_Text(pDX, IDC_EDIT_MAX, m_max);
 	DDX_Text(pDX, IDC_EDIT_MIN, m_min);
+	DDX_Control(pDX, IDOK, m_stbtn);
 }
 
 BEGIN_MESSAGE_MAP(CTMonitorDlg, CDialogEx)
@@ -78,6 +80,7 @@ BEGIN_MESSAGE_MAP(CTMonitorDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDOK, &CTMonitorDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
@@ -180,43 +183,46 @@ HCURSOR CTMonitorDlg::OnQueryDragIcon()
 void CTMonitorDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	int curT = rand()%100;
-	TArray.Add(curT);
-	for(int i=0;i<POINT_COUNT-1;i++)
+	if(state)
 	{
-		m_temp[i] = m_temp[i+1];
-	}
-	m_temp[POINT_COUNT-1] = curT;
-
-	int sum = 0;
-	int avg;
-	int max = 0;
-	int min = 100;
-	for(int i=0;i<TArray.GetSize();i++)
-	{
-		sum = sum + TArray.GetAt(i);
-		if(TArray.GetAt(i)>max)
+		int curT = rand()%100;
+		TArray.Add(curT);
+		for(int i=0;i<POINT_COUNT-1;i++)
 		{
-			max = TArray.GetAt(i);
+			m_temp[i] = m_temp[i+1];
 		}
-		if(TArray.GetAt(i)<min)
+		m_temp[POINT_COUNT-1] = curT;
+
+		int sum = 0;
+		int avg;
+		int max = 0;
+		int min = 100;
+		for(int i=0;i<TArray.GetSize();i++)
 		{
-			min = TArray.GetAt(i);
+			sum = sum + TArray.GetAt(i);
+			if(TArray.GetAt(i)>max)
+			{
+				max = TArray.GetAt(i);
+			}
+			if(TArray.GetAt(i)<min)
+			{
+				min = TArray.GetAt(i);
+			}
 		}
+		avg = sum/TArray.GetSize();
+		m_tmp.Format(_T("%d"),curT);
+		m_num.Format(_T("%d"),TArray.GetSize());
+		m_avg.Format(_T("%d"),avg);
+		m_max.Format(_T("%d"),max);
+		m_min.Format(_T("%d"),min);
+		UpdateData(FALSE);
+
+		CRect rect;
+		m_waveWin.GetClientRect(&rect);
+		DrawGrids(m_waveWin.GetDC(),rect);
+		DrawTWave(m_waveWin.GetDC(),rect);
 	}
-	avg = sum/TArray.GetSize();
-	m_tmp.Format(_T("%d"),curT);
-	m_num.Format(_T("%d"),TArray.GetSize());
-	m_avg.Format(_T("%d"),avg);
-	m_max.Format(_T("%d"),max);
-	m_min.Format(_T("%d"),min);
-	UpdateData(FALSE);
-
-	CRect rect;
-	m_waveWin.GetClientRect(&rect);
-	DrawGrids(m_waveWin.GetDC(),rect);
-	DrawTWave(m_waveWin.GetDC(),rect);
-
+	
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -278,4 +284,21 @@ void CTMonitorDlg::DrawTWave(CDC* pDC, CRect& rect)
 	}
 	pDC->SelectObject(pOldPen);
 	newPen.DeleteObject();
+}
+
+
+void CTMonitorDlg::OnBnClickedOk()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if(state==TRUE)
+	{
+		state = FALSE;
+		GetDlgItem(IDOK)->SetWindowTextW(_T("开始"));
+	}
+	else
+	{
+		state = TRUE;
+		GetDlgItem(IDOK)->SetWindowTextW(_T("暂停"));
+	}
+	//CDialogEx::OnOK();
 }

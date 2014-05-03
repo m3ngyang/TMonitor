@@ -32,6 +32,7 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
+	BOOL state;
 	// window of t-wave
 	CStatic m_waveWin;
 	//temperature array
@@ -41,9 +42,12 @@ public:
 	void DrawGrids(CDC* pDC, CRect& rect);
 	// draw the wave line of temperature
 	void DrawTWave(CDC* pDC, CRect& rect);
-	CString m_tmp;
-	CString m_avg;
-	CString m_num;
-	CString m_max;
-	CString m_min;
+	CString m_tmp;	//real time temperature
+	CString m_avg;	//average of temperature
+	CString m_num;	//munber of samples
+	CString m_max;	//max of temperature samples
+	CString m_min;	//min of temperature samples
+//	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClickedOk();
+	CButton m_stbtn;
 };
