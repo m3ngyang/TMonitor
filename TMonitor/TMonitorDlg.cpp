@@ -53,7 +53,8 @@ CTMonitorDlg::CTMonitorDlg(CWnd* pParent /*=NULL*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	
+	TArray.RemoveAll();
+	memset(m_temp,0,sizeof(int)*POINT_COUNT);
 }
 
 void CTMonitorDlg::DoDataExchange(CDataExchange* pDX)
@@ -103,6 +104,7 @@ BOOL CTMonitorDlg::OnInitDialog()
 
 	//my codes
 	// TODO: 在此添加额外的初始化代码
+
 	srand((unsigned)time(NULL));
 	SetTimer(1,1000,NULL);
 
@@ -168,6 +170,18 @@ HCURSOR CTMonitorDlg::OnQueryDragIcon()
 void CTMonitorDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	int curT = rand()%100;
+	TArray.Add(curT);
+	for(int i=0;i<POINT_COUNT-1;i++)
+	{
+		m_temp[i] = m_temp[i+1];
+	}
+	m_temp[POINT_COUNT-1] = curT;
+
+	CRect rect;
+	m_waveWin.GetClientRect(&rect);
+	DrawGrids(m_waveWin.GetDC(),rect);
+	DrawTWave(m_waveWin.GetDC(),rect);
 
 	CDialogEx::OnTimer(nIDEvent);
 }
@@ -201,6 +215,32 @@ void CTMonitorDlg::DrawGrids(CDC* pDC, CRect& rect)
 		pDC->MoveTo(0,height-i*delH);
 		pDC->LineTo(width,height-i*delH);
 		pDC->TextOut(0-25,height-i*delH-10,strT);
+	}
+	pDC->SelectObject(pOldPen);
+	newPen.DeleteObject();
+}
+
+
+// draw the wave line of temperature
+void CTMonitorDlg::DrawTWave(CDC* pDC, CRect& rect)
+{
+	float width = rect.Width();
+	float height = rect.Height();
+	float delX = width/(POINT_COUNT-1);
+	float delY = height/100;
+	float nX;
+	float nY;
+	CPen newPen;
+	CPen *pOldPen;
+
+	newPen.CreatePen(PS_SOLID,1,RGB(0,255,0));
+	pOldPen = pDC->SelectObject(&newPen);
+	pDC->MoveTo(rect.left,rect.bottom);
+	for(int i=0;i<POINT_COUNT;i++)
+	{
+		nX = rect.left + (int)i*delX;
+		nY = rect.bottom - (int)m_temp[i]*delY;
+		pDC->LineTo(nX,nY);
 	}
 	pDC->SelectObject(pOldPen);
 	newPen.DeleteObject();

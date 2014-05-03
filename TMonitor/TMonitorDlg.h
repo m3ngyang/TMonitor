@@ -4,7 +4,8 @@
 
 #pragma once
 #include "afxwin.h"
-
+#include <afxtempl.h>
+#define POINT_COUNT 20
 
 // CTMonitorDlg ¶Ô»°¿ò
 class CTMonitorDlg : public CDialogEx
@@ -33,6 +34,11 @@ protected:
 public:
 	// window of t-wave
 	CStatic m_waveWin;
+	//temperature array
+	CArray<int,int> TArray;
+	int m_temp[POINT_COUNT];
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	void DrawGrids(CDC* pDC, CRect& rect);
+	// draw the wave line of temperature
+	void DrawTWave(CDC* pDC, CRect& rect);
 };
