@@ -50,6 +50,11 @@ END_MESSAGE_MAP()
 
 CTMonitorDlg::CTMonitorDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CTMonitorDlg::IDD, pParent)
+	, m_tmp(_T(""))
+	, m_avg(_T(""))
+	, m_num(_T(""))
+	, m_max(_T(""))
+	, m_min(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -61,6 +66,11 @@ void CTMonitorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_WAVE_WIN, m_waveWin);
+	DDX_Text(pDX, IDC_EDIT_TMP, m_tmp);
+	DDX_Text(pDX, IDC_EDIT_AVG, m_avg);
+	DDX_Text(pDX, IDC_EDIT_NMB, m_num);
+	DDX_Text(pDX, IDC_EDIT_MAX, m_max);
+	DDX_Text(pDX, IDC_EDIT_MIN, m_min);
 }
 
 BEGIN_MESSAGE_MAP(CTMonitorDlg, CDialogEx)
@@ -177,6 +187,30 @@ void CTMonitorDlg::OnTimer(UINT_PTR nIDEvent)
 		m_temp[i] = m_temp[i+1];
 	}
 	m_temp[POINT_COUNT-1] = curT;
+
+	int sum = 0;
+	int avg;
+	int max = 0;
+	int min = 100;
+	for(int i=0;i<TArray.GetSize();i++)
+	{
+		sum = sum + TArray.GetAt(i);
+		if(TArray.GetAt(i)>max)
+		{
+			max = TArray.GetAt(i);
+		}
+		if(TArray.GetAt(i)<min)
+		{
+			min = TArray.GetAt(i);
+		}
+	}
+	avg = sum/TArray.GetSize();
+	m_tmp.Format(_T("%d"),curT);
+	m_num.Format(_T("%d"),TArray.GetSize());
+	m_avg.Format(_T("%d"),avg);
+	m_max.Format(_T("%d"),max);
+	m_min.Format(_T("%d"),min);
+	UpdateData(FALSE);
 
 	CRect rect;
 	m_waveWin.GetClientRect(&rect);

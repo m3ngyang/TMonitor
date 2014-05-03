@@ -41,4 +41,9 @@ public:
 	void DrawGrids(CDC* pDC, CRect& rect);
 	// draw the wave line of temperature
 	void DrawTWave(CDC* pDC, CRect& rect);
+	CString m_tmp;
+	CString m_avg;
+	CString m_num;
+	CString m_max;
+	CString m_min;
 };
