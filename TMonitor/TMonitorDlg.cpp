@@ -52,17 +52,21 @@ CTMonitorDlg::CTMonitorDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CTMonitorDlg::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	
 }
 
 void CTMonitorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_WAVE_WIN, m_waveWin);
 }
 
 BEGIN_MESSAGE_MAP(CTMonitorDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -97,7 +101,10 @@ BOOL CTMonitorDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
+	//my codes
 	// TODO: 在此添加额外的初始化代码
+	srand((unsigned)time(NULL));
+	SetTimer(1,1000,NULL);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -142,6 +149,11 @@ void CTMonitorDlg::OnPaint()
 	{
 		CDialogEx::OnPaint();
 	}
+
+	CRect rect;
+	m_waveWin.GetClientRect(&rect);
+	DrawGrids(m_waveWin.GetDC(),rect);
+	UpdateData(FALSE);
 }
 
 //当用户拖动最小化窗口时系统调用此函数取得光标
@@ -151,3 +163,45 @@ HCURSOR CTMonitorDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CTMonitorDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CDialogEx::OnTimer(nIDEvent);
+}
+
+
+void CTMonitorDlg::DrawGrids(CDC* pDC, CRect& rect)
+{
+	//draw grid line
+	float width = rect.Width();
+	float height = rect.Height();
+	float delH = height/10;
+	CPen newPen;
+	CPen *pOldPen;
+	CBrush newBrush;
+	CBrush *pOldBrush;
+
+	newBrush.CreateSolidBrush(RGB(0,0,0));
+	pOldBrush = pDC->SelectObject(&newBrush);
+	pDC->Rectangle(rect);
+	pDC->SelectObject(pOldBrush);
+	newBrush.DeleteObject();
+
+	newPen.CreatePen(PS_SOLID,1,RGB(255,255,255));
+	pOldPen = pDC->SelectObject(&newPen);
+
+	
+	for(int i=0;i<=10;i++)
+	{
+		CString strT;
+		strT.Format(_T("%d"),i*10);
+		pDC->MoveTo(0,height-i*delH);
+		pDC->LineTo(width,height-i*delH);
+		pDC->TextOut(0-25,height-i*delH-10,strT);
+	}
+	pDC->SelectObject(pOldPen);
+	newPen.DeleteObject();
+}

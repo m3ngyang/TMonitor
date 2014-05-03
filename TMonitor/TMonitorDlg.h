@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "afxwin.h"
 
 
 // CTMonitorDlg ¶Ô»°¿ò
@@ -29,4 +30,9 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	// window of t-wave
+	CStatic m_waveWin;
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	void DrawGrids(CDC* pDC, CRect& rect);
 };
